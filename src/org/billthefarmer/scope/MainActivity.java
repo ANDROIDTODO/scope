@@ -29,17 +29,22 @@ import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
+import android.widget.ArrayAdapter;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 public class MainActivity extends Activity
+    implements ActionBar.OnNavigationListener
 {
     private static final float values[] =
     {0.1f, 0.2f, 0.5f, 1.0f,
@@ -56,6 +61,8 @@ public class MainActivity extends Activity
     {256, 512, 1024, 2048,
      4096, 8192, 16384, 32768,
      65536, 131072, 262144, 524288};
+
+    static final private String TAG = "MainActivity";
 
     protected static final int SIZE = 20;
     protected static final float SMALL_SCALE = 200;
@@ -82,6 +89,15 @@ public class MainActivity extends Activity
 	scope = (Scope)findViewById(R.id.scope);
 	xscale = (XScale)findViewById(R.id.xscale);
 	unit = (Unit)findViewById(R.id.unit);
+
+	SpinnerAdapter spinnerAdapter =
+	    ArrayAdapter
+	    .createFromResource(this, R.array.action_list,
+				android.R.layout.simple_spinner_dropdown_item);
+
+	ActionBar actionBar = getActionBar();
+	actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+	actionBar.setListNavigationCallbacks(spinnerAdapter, this);
 
 	// Create audio
 
@@ -352,12 +368,13 @@ public class MainActivity extends Activity
 	    // Spectrum
 
 	case R.id.action_spectrum:
-	    return onSpectrumClick(item);
+	    Log.d(TAG, "R.id.action_spectrum");
+	    return onSpectrumClick();
 
 	    // Settings
 
 	case R.id.action_settings:
-	    return onSettingsClick(item);
+	    return onSettingsClick();
 
 	default:
 	    return false;
@@ -368,7 +385,7 @@ public class MainActivity extends Activity
 
     // On settings click
 
-    private boolean onSettingsClick(MenuItem item)
+    private boolean onSettingsClick()
     {
 	Intent intent = new Intent(this, SettingsActivity.class);
 	startActivity(intent);
@@ -378,8 +395,10 @@ public class MainActivity extends Activity
 
     // On spectrum click
 
-    private boolean onSpectrumClick(MenuItem item)
+    private boolean onSpectrumClick()
     {
+	Log.d(TAG, "onSpectrumClick");
+	
 	Intent intent = new Intent(this, SpectrumActivity.class);
 	startActivity(intent);
 
@@ -399,6 +418,28 @@ public class MainActivity extends Activity
 	    if (last != null)
 		last.setChecked(false);
 	}
+    }
+
+    // Navigation item selected
+
+    @Override
+    public boolean onNavigationItemSelected(int position, long itemId)
+    {
+	Log.d(TAG, "onNavigationItemSelected: " + position + ", " + itemId);
+
+	switch (position)
+	{
+	case 0:
+	    break;
+
+	case 1:
+	    return onSpectrumClick();
+
+	default:
+	    return false;
+	}
+
+	return true;
     }
 
     // Set timebase

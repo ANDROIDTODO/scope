@@ -36,16 +36,21 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class SpectrumActivity extends Activity
-    implements View.OnClickListener
+    implements View.OnClickListener, ActionBar.OnNavigationListener
 {
+    static final private String TAG = "SpectrumActivity";
+
     private Spectrum spectrum;
     private FreqScale scale;
     private TextView text;
@@ -74,11 +79,20 @@ public class SpectrumActivity extends Activity
 	if (spectrum != null)
 	    spectrum.setOnClickListener(this);
 
-	// Enable back navigation on action bar
+	SpinnerAdapter spinnerAdapter =
+	    ArrayAdapter
+	    .createFromResource(this, R.array.action_list,
+				android.R.layout.simple_spinner_dropdown_item);
 
 	ActionBar actionBar = getActionBar();
-	actionBar.setDisplayHomeAsUpEnabled(true);
-	actionBar.setTitle(R.string.spectrum);
+	actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+	actionBar.setListNavigationCallbacks(spinnerAdapter, this);
+
+	// Enable back navigation on action bar
+
+	// ActionBar actionBar = getActionBar();
+	// actionBar.setDisplayHomeAsUpEnabled(true);
+	// actionBar.setTitle(R.string.spectrum);
 
 	actionBar.setCustomView(R.layout.text);
 	actionBar.setDisplayShowCustomEnabled(true);
@@ -117,6 +131,7 @@ public class SpectrumActivity extends Activity
 	    // Home
 
 	case android.R.id.home:
+	    Log.d(TAG, "android.R.id.home");
 	    onBackPressed();
 	    break;
 
@@ -139,11 +154,34 @@ public class SpectrumActivity extends Activity
 	return true;
     }
 
+    // Navigation item selected
+
+    @Override
+    public boolean onNavigationItemSelected(int position, long itemId)
+    {
+	switch (position)
+	{
+	case 0:
+	    Log.d(TAG, "onNavigationItemSelected");
+	    onBackPressed();
+	    break;
+
+	case 1:
+	    break;
+
+	default:
+	    return false;
+	}
+
+	return true;
+    }
+
     // On back pressed
 
     @Override
     public void onBackPressed()
     {
+	Log.d(TAG, "onBackPressed");
 	Intent intent = new Intent(this, MainActivity.class);
 	intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	startActivity(intent);
